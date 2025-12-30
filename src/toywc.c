@@ -9,10 +9,11 @@ char buff[BUFFSIZE];
 
 int main(int argc, char *argv[argc+1]){
     int l,w,c, tl, tw, tc;
+    int wf,cf,lf;
     FILE* fp;
     int bread = 0;
     char wcond = 0;
-    l = w = c = tl= tw = tc = 0;
+    l = w = c = tl= tw = tc = wf = cf = lf = 0;
     if(argc == 1){
         while((bread = read(STDIN_FILENO, buff, BUFFSIZE)) > 0){
             updcount(buff, &l, &w, &c, &wcond, bread);
@@ -23,7 +24,30 @@ int main(int argc, char *argv[argc+1]){
         for (char** clarg = argv + 1;--argc > 0; clarg++){
             l = w = c = wcond = 0;
             if(**(clarg) == '-'){
-
+                if(!(*((*clarg)+1))){
+                    while((bread = read(STDIN_FILENO, buff, BUFFSIZE)) > 0){
+                        updcount(buff, &l, &w, &c, &wcond, bread);
+                    }
+                    printf("%d %d %d -\n", l , w , c);
+                }
+                else {
+                    for(char* clopt = *clarg; *clopt != '\0'; clopt++){
+                        switch(*clopt){
+                        case 'l':
+                            lf = 1;
+                            break;
+                        case 'w':
+                            wf = 1;
+                            break;
+                        case 'c':
+                            cf = 1;
+                            break;
+                        default:
+                            fprintf(stderr, "Invalid Option\n");
+                            break;
+                        }
+                    }
+                }
             }
             else {
                 fp = fopen(*clarg , "r");
@@ -31,7 +55,7 @@ int main(int argc, char *argv[argc+1]){
                     while((bread = read(fp->_fileno, buff, BUFFSIZE)) > 0){
                         updcount(buff, &l, &w, &c, &wcond, bread);
                     }
-                    printf("%7d %7d %7d %s\n", l , w , c, *clarg);
+                    printf("%d %d %d %s\n", l , w , c, *clarg);
                 }
                 else {
                     fprintf(stderr, "%s: %s: No such file or directory\n",argv[0], *clarg);
@@ -41,7 +65,7 @@ int main(int argc, char *argv[argc+1]){
             tw += w;
             tc += c;
         }
-        printf("%7d %7d %7d total\n", tl , tw , tc);
+        printf("%d %d %d total\n", tl , tw , tc);
     }
 }
 
